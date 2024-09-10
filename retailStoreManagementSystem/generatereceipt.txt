@@ -1,0 +1,37 @@
+CREATE OR REPLACE PROCEDURE GenerateReceipt(PaymentID IN INT)
+IS
+    CustomerName customer.first_name%type;
+    PaymentAmount NUMBER;
+    PaymentType payment.payment_type%type;
+BEGIN
+
+    -- Fetch payment details based on the user-input payment_id
+    SELECT c.first_name || ' ' || c.last_name, p.amount, p.payment_type
+    INTO CustomerName, PaymentAmount, PaymentType
+    FROM payment p
+    INNER JOIN customer c ON p.customer_id = c.customer_id
+    WHERE p.payment_id = PaymentID;
+
+    -- Print receipt header
+    DBMS_OUTPUT.PUT_LINE('----- Receipt -----');
+    DBMS_OUTPUT.PUT_LINE('Payment ID: ' || PaymentID);
+    DBMS_OUTPUT.PUT_LINE('Customer Name: ' || CustomerName);
+    DBMS_OUTPUT.PUT_LINE('Amount Paid: $' || PaymentAmount);
+    DBMS_OUTPUT.PUT_LINE('Payment Type: ' || PaymentType);
+    DBMS_OUTPUT.PUT_LINE('-------------------');
+
+    FOR product_row IN (
+        SELECT p.product_name, c.qty
+        FROM cart c
+        INNER JOIN products p ON c.product_id = p.product_id
+        WHERE c.payment_id = PaymentID
+    ) LOOP
+        DBMS_OUTPUT.PUT_LINE('Product: ' || product_row.product_name || ', Quantity: ' || product_row.qty);
+    END LOOP;
+    DBMS_OUTPUT.PUT_LINE('-------------------');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Error: Payment ID ' || PaymentID || ' not found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error generating receipt: ' || SQLERRM);
+END;

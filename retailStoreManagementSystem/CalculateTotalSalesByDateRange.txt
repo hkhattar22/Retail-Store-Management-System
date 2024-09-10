@@ -1,0 +1,18 @@
+CREATE OR REPLACE PROCEDURE CalculateTotalSalesByDateRange
+(
+    StartDate IN DATE,
+    EndDate IN DATE
+)
+IS
+    TotalSales NUMBER;
+BEGIN
+    SELECT SUM(p.amount) INTO TotalSales
+    FROM payment p
+    WHERE p.payment_id IN (
+        SELECT payment_id
+        FROM processes
+        WHERE trans_date BETWEEN StartDate AND EndDate
+    );
+
+    DBMS_OUTPUT.PUT_LINE('Total sales from ' || TO_CHAR(StartDate, 'MM/DD/YYYY') || ' to ' || TO_CHAR(EndDate, 'MM/DD/YYYY') || ': ' || NVL(TotalSales, 0));
+END;

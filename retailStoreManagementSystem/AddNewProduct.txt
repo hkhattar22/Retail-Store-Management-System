@@ -1,0 +1,40 @@
+CREATE OR REPLACE PROCEDURE AddNewProduct(
+    ProductName IN products.product_name%type,
+    Price IN NUMBER,
+    Profit IN NUMBER,
+    CategoryName IN category.category_name%type,
+    Stock IN NUMBER
+)
+IS
+    ProductDescription products.product_description%type;
+    CategoryID category.category_id%type;
+    CategoryExists NUMBER := 0;
+    ProductId  products.product_id%type;
+    
+
+BEGIN
+    SELECT COUNT(*) INTO CategoryExists
+    FROM category
+    WHERE category_name = CategoryName;
+
+    IF CategoryExists = 0 THEN
+        INSERT INTO category (category_id, category_name)
+        VALUES ((SELECT MAX(category_id,0) + 1 FROM category), CategoryName);
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('New category added successfully.');
+    END IF;
+
+    SELECT category_id INTO CategoryID
+    FROM category
+    WHERE category_name = CategoryName;
+
+    SELECT NVL(Max(product_id,0)+1) INTO ProductId from products;
+
+    INSERT INTO products (product_id,product_name, price, profit, stock, product_description, category_id)
+    VALUES (ProductId,ProductName, Price, Profit, Stock, ProductDescription, CategoryID);
+
+    DBMS_OUTPUT.PUT_LINE('New product added successfully.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error adding product: ' || SQLERRM);
+END;

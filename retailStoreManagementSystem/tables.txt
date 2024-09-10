@@ -1,0 +1,60 @@
+create table customer(
+customer_id int primary key,
+email_id varchar(20),
+first_name varchar(15),
+last_name varchar(15),
+contact_no int
+);
+
+create table payment(
+payment_id int primary key,
+customer_id int references customer(customer_id),
+transac_id int,
+amount int,
+payment_type varchar(20) check(payment_type in ('cash','credit card','debit card','UPI','netbanking'))
+);
+
+create table category(
+category_id int primary key,
+category_name varchar(20)
+);
+
+create table products(
+product_id int primary key,
+product_name varchar(20),
+price int,
+profit int,
+stock int,
+product_description varchar(50),
+category_id int references category(category_id)
+);
+
+create table cart(
+payment_id int references payment(payment_id),
+product_id int references products(product_id),
+qty int,
+primary key(product_id, payment_id)
+);
+
+create table employee
+(
+employee_id int primary key,
+contact_no int,
+e_fname varchar(15),
+e_lname varchar(20),
+pos varchar(20)
+);
+
+create table processes(
+trans_date DATE,
+employee_id int references employee(employee_id),
+payment_id int references payment(payment_id),
+primary key(employee_id,payment_id)
+);
+
+create table investment(
+trans_id int primary key,
+detail varchar(30),
+amt int,
+trans_date date
+);

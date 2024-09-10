@@ -1,0 +1,15 @@
+CREATE OR REPLACE TRIGGER limited_stock
+BEFORE INSERT ON cart
+FOR EACH ROW 
+DECLARE
+  st INT;
+BEGIN
+  SELECT stock INTO st FROM products WHERE product_id = :NEW.product_id;
+  
+  IF :NEW.qty > st THEN
+    RAISE_APPLICATION_ERROR(-20000, 'Low stock!! ' || st || ' items available');
+  END IF;
+END;
+
+
+

@@ -1,0 +1,18 @@
+CREATE OR REPLACE PROCEDURE AddStockToProducts(
+    ProductIDs IN int,
+    Quantities IN int
+)
+IS
+BEGIN
+
+        UPDATE products
+        SET stock = stock + Quantities
+        WHERE product_id = ProductIDs;
+
+    COMMIT;
+
+    DBMS_OUTPUT.PUT_LINE('Stock added successfully.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error adding stock: ' || SQLERRM);
+END;
